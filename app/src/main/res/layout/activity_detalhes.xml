@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/inputTitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Título"
+        android:inputType="textCapSentences"
+        android:padding="12dp"
+        android:background="@android:drawable/editbox_background"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/inputDescricao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Descrição"
+        android:inputType="textMultiLine"
+        android:minHeight="120dp"
+        android:gravity="top"
+        android:padding="12dp"
+        android:background="@android:drawable/editbox_background"
+        android:layout_marginBottom="12dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerTipo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:background="@android:drawable/spinner_background"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:id="@+id/btnSalvar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Salvar"
+        android:padding="12dp"
+        android:textColor="@android:color/white"/>
+</LinearLayout>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_urgent"
+        android:title="Urgente" />
+    <item
+        android:id="@+id/nav_non_urgent"
+        android:title="Não Urgente" />
+</menu>
