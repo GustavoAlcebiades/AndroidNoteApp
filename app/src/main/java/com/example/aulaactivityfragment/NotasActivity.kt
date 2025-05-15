@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -12,8 +13,8 @@ class NotasActivity : AppCompatActivity() {
     private val REQUEST_CODE_DETALHES = 1
     private val listaNotasUrgentes = mutableListOf<Nota>()
     private val listaNotasNaoUrgentes = mutableListOf<Nota>()
-    private lateinit var adapterUrgentes: ArrayAdapter<String>
-    private lateinit var adapterNaoUrgentes: ArrayAdapter<String>
+    private lateinit var adapterUrgentes: NotasAdapter
+    private lateinit var adapterNaoUrgentes: NotasAdapter
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,8 +25,12 @@ class NotasActivity : AppCompatActivity() {
         val listViewNotasNaoUrgentes = findViewById<ListView>(R.id.listViewNotasNaoUrgentes)
         val btnAdicionar = findViewById<FloatingActionButton>(R.id.btnAdicionar)
 
-        adapterUrgentes = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
-        adapterNaoUrgentes = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
+        adapterUrgentes = NotasAdapter(this, listaNotasUrgentes) { nota ->
+            deletarNota(nota)
+        }
+        adapterNaoUrgentes = NotasAdapter(this, listaNotasNaoUrgentes) { nota ->
+            deletarNota(nota)
+        }
 
         listViewNotasUrgentes.adapter = adapterUrgentes
         listViewNotasNaoUrgentes.adapter = adapterNaoUrgentes
@@ -35,6 +40,24 @@ class NotasActivity : AppCompatActivity() {
         btnAdicionar.setOnClickListener {
             val intent = Intent(this, DetalhesActivity::class.java)
             startActivityForResult(intent, REQUEST_CODE_DETALHES)
+        }
+    }
+
+    private fun deletarNota(nota: Nota) {
+        val dbHelper = NotasDataBaseHelper(this)
+        val linhasDeletadas = dbHelper.deletarNota(nota.id.toLong())
+
+        if (linhasDeletadas > 0) {
+            if (nota.tipo == "Urgente") {
+                listaNotasUrgentes.remove(nota)
+                adapterUrgentes.notifyDataSetChanged()
+            } else {
+                listaNotasNaoUrgentes.remove(nota)
+                adapterNaoUrgentes.notifyDataSetChanged()
+            }
+            Toast.makeText(this, "Nota deletada", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Erro ao deletar", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -79,22 +102,12 @@ class NotasActivity : AppCompatActivity() {
         atualizarAdapters()
     }
 
+
     private fun atualizarAdapters() {
-        val listaUrgentesFormatada = listaNotasUrgentes.mapIndexed { index, nota ->
-            "${index + 1}. ${nota.titulo}\n${nota.descricao}"
-        }
 
-        val listaNaoUrgentesFormatada = listaNotasNaoUrgentes.mapIndexed { index, nota ->
-            "${index + 1}. ${nota.titulo}\n${nota.descricao}"
-        }
+        adapterUrgentes.atualizarNotas(listaNotasUrgentes)
 
-        adapterUrgentes.clear()
-        adapterUrgentes.addAll(listaUrgentesFormatada)
+        adapterNaoUrgentes.atualizarNotas(listaNotasNaoUrgentes)
 
-        adapterNaoUrgentes.clear()
-        adapterNaoUrgentes.addAll(listaNaoUrgentesFormatada)
-
-        adapterUrgentes.notifyDataSetChanged()
-        adapterNaoUrgentes.notifyDataSetChanged()
     }
 }

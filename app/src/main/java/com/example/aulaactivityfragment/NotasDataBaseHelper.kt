@@ -64,7 +64,10 @@ data class Nota(val id: Int = 0, val titulo: String, val descricao: String, val 
 
      fun deletarNota(id: Long): Int {
          val db = writableDatabase
-         return db.delete("notas", "id = ?", arrayOf(id.toString()))
+
+         val linhasDeletadas = db.delete("Notas", "id = ?", arrayOf(id.toString()))
+         db.close()
+         return linhasDeletadas
      }
 
      companion object {
