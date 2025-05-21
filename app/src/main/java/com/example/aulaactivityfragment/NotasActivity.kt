@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
@@ -115,6 +116,32 @@ private fun carregarNotasDoBanco() {
 private fun atualizarAdapters() {
     adapterUrgentes.atualizarNotas(listaNotasUrgentes)
     adapterNaoUrgentes.atualizarNotas(listaNotasNaoUrgentes)
+
+
+    ajustarAlturaListView(findViewById(R.id.listViewNotasUrgentes))
+    ajustarAlturaListView(findViewById(R.id.listViewNotasNaoUrgentes))
+
 }
+
+    fun ajustarAlturaListView(listView: ListView) {
+        val listAdapter = listView.adapter ?: return
+
+        var totalHeight = 0
+        for (i in 0 until listAdapter.count) {
+            val listItem = listAdapter.getView(i, null, listView)
+            listItem.measure(
+                View.MeasureSpec.makeMeasureSpec(listView.width, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            totalHeight += listItem.measuredHeight
+        }
+
+        val params = listView.layoutParams
+        params.height = totalHeight + (listView.dividerHeight * (listAdapter.count - 1))
+        listView.layoutParams = params
+        listView.requestLayout()
+    }
+
+
 }
 
