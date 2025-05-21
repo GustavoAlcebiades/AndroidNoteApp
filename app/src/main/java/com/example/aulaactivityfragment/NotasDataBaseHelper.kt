@@ -62,6 +62,16 @@ data class Nota(val id: Int = 0, val titulo: String, val descricao: String, val 
          return notas
      }
 
+     fun atualizarNota(nota: Nota): Int {
+         val db = writableDatabase
+         val valores = ContentValues().apply {
+             put("titulo", nota.titulo)
+             put("descricao", nota.descricao)
+             put("tipo", nota.tipo)
+         }
+         return db.update("Notas", valores, "id = ?", arrayOf(nota.id.toString()))
+     }
+
      fun deletarNota(id: Long): Int {
          val db = writableDatabase
 

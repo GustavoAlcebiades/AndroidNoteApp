@@ -5,27 +5,25 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Campo Título -->
     <EditText
-        android:id="@+id/inputTitulo"
+        android:id="@+id/editTitulo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Título"
-        android:inputType="textCapSentences"
-        android:padding="12dp"
-        android:background="@android:drawable/editbox_background"
-        android:layout_marginBottom="12dp"/>
+        android:hint="Título da Nota"
+        android:inputType="textPersonName"
+        android:padding="8dp"/>
 
+    <!-- Campo Descrição -->
     <EditText
-        android:id="@+id/inputDescricao"
+        android:id="@+id/editDescricao"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Descrição"
+        android:hint="Descrição da Nota"
         android:inputType="textMultiLine"
-        android:minHeight="120dp"
-        android:gravity="top"
-        android:padding="12dp"
-        android:background="@android:drawable/editbox_background"
-        android:layout_marginBottom="12dp"/>
+        android:padding="8dp"
+        android:lines="5"
+        android:gravity="top"/>
 
     <Spinner
         android:id="@+id/spinnerTipo"

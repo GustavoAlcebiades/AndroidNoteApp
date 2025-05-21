@@ -1,8 +1,10 @@
 package com.example.aulaactivityfragment
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
@@ -11,6 +13,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class NotasActivity : AppCompatActivity() {
     private val REQUEST_CODE_DETALHES = 1
+    private val REQUEST_CODE_EDITAR = 2
     private val listaNotasUrgentes = mutableListOf<Nota>()
     private val listaNotasNaoUrgentes = mutableListOf<Nota>()
     private lateinit var adapterUrgentes: NotasAdapter
@@ -25,12 +28,19 @@ class NotasActivity : AppCompatActivity() {
         val listViewNotasNaoUrgentes = findViewById<ListView>(R.id.listViewNotasNaoUrgentes)
         val btnAdicionar = findViewById<FloatingActionButton>(R.id.btnAdicionar)
 
-        adapterUrgentes = NotasAdapter(this, listaNotasUrgentes) { nota ->
-            deletarNota(nota)
-        }
-        adapterNaoUrgentes = NotasAdapter(this, listaNotasNaoUrgentes) { nota ->
-            deletarNota(nota)
-        }
+        adapterUrgentes = NotasAdapter(
+            this,
+            listaNotasUrgentes,
+            onDeleteClicked = { nota -> deletarNota(nota) },
+            onEditClicked = { nota -> editarNota(nota) }
+        )
+
+        adapterNaoUrgentes = NotasAdapter(
+            this,
+            listaNotasNaoUrgentes,
+            onDeleteClicked = { nota -> deletarNota(nota) },
+            onEditClicked = { nota -> editarNota(nota) }
+        )
 
         listViewNotasUrgentes.adapter = adapterUrgentes
         listViewNotasNaoUrgentes.adapter = adapterNaoUrgentes
@@ -61,6 +71,16 @@ class NotasActivity : AppCompatActivity() {
         }
     }
 
+    private fun editarNota(nota: Nota) {
+        val intent = Intent(this, DetalhesActivity::class.java).apply {
+            putExtra("id", nota.id)
+            putExtra("titulo", nota.titulo)
+            putExtra("descricao", nota.descricao)
+            putExtra("tipo", nota.tipo)
+        }
+        startActivityForResult(intent, REQUEST_CODE_EDITAR)
+    }
+
     override fun onResume() {
         super.onResume()
         carregarNotasDoBanco()
@@ -68,46 +88,60 @@ class NotasActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_DETALHES && resultCode == RESULT_OK) {
-            val titulo = data?.getStringExtra("titulo") ?: return
-            val descricao = data?.getStringExtra("descricao") ?: return
-            val tipo = data?.getStringExtra("tipo") ?: "Não Urgente"
-
-            val novaNota = Nota(titulo = titulo, descricao = descricao, tipo = tipo)
-
-            // Salva no banco
-            val dbHelper = NotasDataBaseHelper(this)
-            dbHelper.salvarNota(novaNota)
-
-            // Recarrega a lista para atualizar a UI
+        if (resultCode == Activity.RESULT_OK) {
             carregarNotasDoBanco()
         }
     }
 
-    private fun carregarNotasDoBanco() {
-        val dbHelper = NotasDataBaseHelper(this)
-        val todasNotas = dbHelper.listarNotas()
 
-        listaNotasUrgentes.clear()
-        listaNotasNaoUrgentes.clear()
+private fun carregarNotasDoBanco() {
+    val dbHelper = NotasDataBaseHelper(this)
+    val todasNotas = dbHelper.listarNotas()
 
-        todasNotas.forEach {
-            if (it.tipo == "Urgente") {
-                listaNotasUrgentes.add(it)
-            } else {
-                listaNotasNaoUrgentes.add(it)
-            }
+    listaNotasUrgentes.clear()
+    listaNotasNaoUrgentes.clear()
+
+    todasNotas.forEach {
+        if (it.tipo == "Urgente") {
+            listaNotasUrgentes.add(it)
+        } else {
+            listaNotasNaoUrgentes.add(it)
+        }
+    }
+
+    atualizarAdapters()
+}
+
+
+private fun atualizarAdapters() {
+    adapterUrgentes.atualizarNotas(listaNotasUrgentes)
+    adapterNaoUrgentes.atualizarNotas(listaNotasNaoUrgentes)
+
+
+    ajustarAlturaListView(findViewById(R.id.listViewNotasUrgentes))
+    ajustarAlturaListView(findViewById(R.id.listViewNotasNaoUrgentes))
+
+}
+
+    fun ajustarAlturaListView(listView: ListView) {
+        val listAdapter = listView.adapter ?: return
+
+        var totalHeight = 0
+        for (i in 0 until listAdapter.count) {
+            val listItem = listAdapter.getView(i, null, listView)
+            listItem.measure(
+                View.MeasureSpec.makeMeasureSpec(listView.width, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            totalHeight += listItem.measuredHeight
         }
 
-        atualizarAdapters()
+        val params = listView.layoutParams
+        params.height = totalHeight + (listView.dividerHeight * (listAdapter.count - 1))
+        listView.layoutParams = params
+        listView.requestLayout()
     }
 
 
-    private fun atualizarAdapters() {
-
-        adapterUrgentes.atualizarNotas(listaNotasUrgentes)
-
-        adapterNaoUrgentes.atualizarNotas(listaNotasNaoUrgentes)
-
-    }
 }
+
